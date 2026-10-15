@@ -1,0 +1,37 @@
+name: Verify release tag
+
+# A bitcoinix release is a signed, annotated git tag. This repeats, after the push,
+# the verification the maintainer runs locally before pushing: the tag must be signed
+# by a key in helper/release-keys/ssh-allowed-signers. See SECURITY.md.
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  verify_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The tag object itself, not just the commit it points at
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Verify the tag signature
+        # An explicit `shell: bash` runs with `-eo pipefail`, the default only has `-e`
+        shell: bash
+        run: |
+          tag=${GITHUB_REF_NAME}
+          [[ $(git cat-file -t "refs/tags/$tag") == tag ]] || {
+              echo "::error::$tag is not an annotated tag object"
+              exit 1
+          }
+          # Capture first instead of piping into `grep -q`: grep exits at its first
+          # match, and under pipefail the producer's SIGPIPE would fail the pipeline
+          tagObject=$(git cat-file tag "refs/tags/$tag")
+          grep -q '^-----BEGIN SSH SIGNATURE-----' <<<"$tagObject" || {
+              echo "::error::$tag does not carry an SSH signature"
+              exit 1
+          }
+          git -c gpg.ssh.allowedSignersFile=helper/release-keys/ssh-allowed-signers \
+              verify-tag "$tag"
