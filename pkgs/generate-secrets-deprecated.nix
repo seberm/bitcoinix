@@ -7,7 +7,7 @@ throw ''
 
   # Only update nix-bitcoin-release.nix if it contains a release hash
   if grep -q sha256 nix-bitcoin-release.nix; then
-    ${toString ../helper/fetch-release} > nix-bitcoin-release.nix && cp ${toString ../examples/shell.nix} .
+    ${toString ../helper/fetch-release.sh} > nix-bitcoin-release.nix && cp ${toString ../examples/shell.nix} .
   else
     cp ${toString ../examples/shell.nix} .
   fi

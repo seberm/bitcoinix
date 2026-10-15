@@ -8,7 +8,7 @@
 let
   # FIXME:
   # Overwrite `builtins.fetchTarball {}` with the output of
-  # command ../helper/fetch-release
+  # command ../helper/fetch-release.sh
   nix-bitcoin = builtins.fetchTarball {};
 in
 { config, pkgs, lib, ... }: {

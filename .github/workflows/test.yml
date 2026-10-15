@@ -54,3 +54,13 @@ jobs:
       - run: nix flake check --all-systems
       - run: ./test/nixos-search/ci-test.sh
       - run: ./test/shellcheck.sh
+
+  release_tooling:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+      - name: Check release signing keys
+        run: nix shell --inputs-from . nixpkgs#openssh -c ./test/release-keys-test.sh
+      - name: Test fetch-release
+        run: nix shell --inputs-from . nixpkgs#{git,openssh,gnutar} -c ./test/fetch-release-test.sh

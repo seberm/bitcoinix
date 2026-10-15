@@ -1,0 +1,21 @@
+# bitcoinix release signing keys, in ssh-keygen(1) ALLOWED SIGNERS format.
+#
+# This file is the authoritative list. The fingerprints of its keys are documented in
+# ../../SECURITY.md and test/release-keys-test.sh fails if the two drift.
+#
+# helper/fetch-release.sh verifies release tags against this file. To verify by hand:
+#   git config gpg.ssh.allowedSignersFile helper/release-keys/ssh-allowed-signers
+#   git tag -v v<version>
+#
+# To retire a key, do NOT delete its line: append valid-before="YYYYMMDD" so that
+# tags signed while the key was still valid keep verifying.
+#
+# Do not use empty lines, separate entries with a bare "#" instead: some OpenSSH
+# versions report an empty line as "missing key" when parsing this file.
+#
+# seberm <seberm@seberm.com>  https://github.com/seberm
+# Secure Enclave (ECDSA-SK), signs release tags and commits
+seberm@seberm.com namespaces="git" sk-ecdsa-sha2-nistp256@openssh.com AAAAInNrLWVjZHNhLXNoYTItbmlzdHAyNTZAb3BlbnNzaC5jb20AAAAIbmlzdHAyNTYAAABBBIFYrdlCeDk1ZaiZ7/PCqdYxdYk0XXlipyZ9iW3Q63WHkTYociIXXF9rCpUAhsgEJDsatNe2+WSo2pYZbimot5MAAAAEc3NoOg==
+#
+# seberm <seberm@seberm.com>  offline rotation key, private half kept offline
+seberm@seberm.com namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM5o8JfQrLKlbvFyFi2m+MElnMQgICTuc3kKfK0Yx3kG
