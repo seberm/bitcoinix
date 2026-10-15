@@ -6,7 +6,7 @@
 
 > [!WARNING]
 > This documentation may be outdated or contain installation steps that do not work with
-> bitcoinix yet (for example, release fetching still points at the upstream nix-bitcoin project).
+> bitcoinix yet.
 > Please report problems at <https://github.com/bitcoinix/bitcoinix/issues>.
 
 **bitcoinix** is a collection of Nix packages and NixOS modules for easily installing

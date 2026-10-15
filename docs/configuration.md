@@ -5,7 +5,7 @@
 
 > [!WARNING]
 > This documentation may be outdated or contain installation steps that do not work with
-> bitcoinix yet (for example, release fetching still points at the upstream nix-bitcoin project).
+> bitcoinix yet.
 > Please report problems at <https://github.com/bitcoinix/bitcoinix/issues>.
 
 This section applies to users of the deployment method described in the [installation guide](./install.md).
@@ -23,7 +23,7 @@ You now have access to deployment commands:
 
 ## Updating bitcoinix
 Run `update-nix-bitcoin` from the deployment shell.\
-This fetches the latest release, verifies its signatures and updates `nix-bitcoin-release.nix`.
+This fetches the latest release, verifies the signature on its release tag and updates `nix-bitcoin-release.nix`.
 
 # Customizing your configuration
 

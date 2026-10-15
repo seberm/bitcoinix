@@ -5,7 +5,7 @@
 
 > [!WARNING]
 > This documentation may be outdated or contain installation steps that do not work with
-> bitcoinix yet (for example, release fetching still points at the upstream nix-bitcoin project).
+> bitcoinix yet.
 > Please report problems at <https://github.com/bitcoinix/bitcoinix/issues>.
 
 This tutorial describes how to manage your Bitcoin node comfortably from your personal computer with the deployment tool [krops](https://github.com/krebs/krops).
@@ -229,17 +229,39 @@ You can also build Nix from source by following the instructions at https://nixo
     cp -r ../bitcoinix/examples/{configuration.nix,shell.nix,krops,.gitignore} .
     ```
 
-3. Obtain the hash of the latest bitcoinix release
+3. Verify the bitcoinix clone
+
+    A bitcoinix release is a signed git tag. The clone you just made is the trust anchor
+    for everything below, so check its signature before using it:
 
     ```
-    ../bitcoinix/helper/fetch-release > nix-bitcoin-release.nix
+    cd ../bitcoinix
+    git config gpg.ssh.allowedSignersFile helper/release-keys/ssh-allowed-signers
+    git tag -v v<version>
+    cd -
     ```
+
+    This must report a good signature from one of the maintainer keys listed in
+    [SECURITY.md](https://github.com/bitcoinix/bitcoinix/blob/master/SECURITY.md).
+
+4. Obtain the hash of the latest bitcoinix release
+
+    ```
+    ../bitcoinix/helper/fetch-release.sh > nix-bitcoin-release.nix
+    ```
+
+    `fetch-release` picks the highest signed release tag, verifies it against
+    `helper/release-keys/ssh-allowed-signers`, and refuses to emit a hash for an unsigned
+    tag or for a tag signed by an unknown key. Pass `version=<version>` to pin a specific
+    release. Set `checkDownload=1` to additionally download the release archive into a
+    throwaway Nix store and check that it is exactly the signed tree.
 
     > [!WARNING]
-    > `fetch-release` is not adapted to bitcoinix yet: it still downloads and verifies the latest
-    > release of the archived upstream project
-    > ([fort-nix/nix-bitcoin](https://github.com/fort-nix/nix-bitcoin)), not of bitcoinix.
-    > bitcoinix does not publish signed releases yet.
+    > bitcoinix has not published its first release tag yet, so this command currently
+    > fails with "No release tags found". Until then, point `nix-bitcoin-release.nix` at
+    > your bitcoinix checkout instead, as
+    > [examples/nix-bitcoin-release.nix](https://github.com/bitcoinix/bitcoinix/blob/master/examples/nix-bitcoin-release.nix)
+    > does.
 
 #### Optional: Specify the system of your node
 This enables evaluating your node config on a machine that has a different system platform
