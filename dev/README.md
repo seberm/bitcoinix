@@ -102,3 +102,53 @@ It's easiest to use an existing service as a template:
 ## Switching to a new NixOS release
 - Run command `update-flake.sh 26.05`
 - Treewide: check if any `TODO-EXTERNAL` comments can be resolved
+
+## Cutting a release
+
+A release is a signed, annotated git tag and nothing else. There are no release archives
+and no GitHub release assets. Signing needs the maintainer's key, so this cannot run in CI.
+
+```bash
+helper/make-release.sh <version>    # e.g. 0.1.0, without the leading "v"
+git push origin v<version>          # manual, the script never pushes
+```
+
+One-time setup:
+
+```bash
+git config gpg.format ssh
+git config user.signingkey <path to your public key>
+```
+
+and your key must be listed in
+[`helper/release-keys/ssh-allowed-signers`](../helper/release-keys/ssh-allowed-signers).
+
+Before signing, the script checks that:
+- you are on `master`, with no uncommitted changes to tracked files, and `HEAD` equals
+  `origin/master`
+- tag `v<version>` exists neither locally nor on `origin`
+- `<version>` is a stable `X.Y.Z` that is greater than every existing release tag
+- `gpg.format` is `ssh`, `user.signingkey` is set and the allowed signers file exists
+
+It then creates the signed tag and verifies it with `helper/fetch-release.sh`, the same
+check users run, against your local repository. If verification fails, it deletes the
+tag it just created. Finally it prints the `git push` command, how to undo the tag
+before pushing, and the post-release checks. Pass `-y` to skip the confirmation prompt.
+
+After pushing, `checkDownload=1 version=<version> helper/fetch-release.sh` run from a clean
+clone verifies the pushed tag and then downloads the archive that Nix users will get, into a
+throwaway store and cache so that nothing local can satisfy it. It fails unless the archive
+is exactly the signed tree. For a fork, also set `repoUrl=https://github.com/<owner>/<repo>`.
+
+Tag names must match `^v[0-9]+(\.[0-9]+)*$`; `helper/fetch-release.sh` ignores anything else.
+Pre-releases such as `0.1.0-rc1` are not supported.
+
+The verification step is the one that matters: it fails if the tag was signed with a key
+that is not listed in `ssh-allowed-signers`, which is the most likely way to publish an
+unverifiable release. `.github/workflows/release.yml` repeats the same check after the
+tag is pushed.
+
+To add or retire a maintainer key, edit `helper/release-keys/ssh-allowed-signers` and
+`SECURITY.md` together; `test/release-keys-test.sh` fails if the two drift apart. Retire a
+key by appending `valid-before="YYYYMMDD"` to its line rather than deleting it, so that tags
+signed while it was still valid keep verifying.

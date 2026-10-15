@@ -64,3 +64,5 @@ jobs:
         run: nix shell --inputs-from . nixpkgs#openssh -c ./test/release-keys-test.sh
       - name: Test fetch-release
         run: nix shell --inputs-from . nixpkgs#{git,openssh,gnutar} -c ./test/fetch-release-test.sh
+      - name: Test make-release
+        run: nix shell --inputs-from . nixpkgs#{git,openssh,gnutar} -c ./test/make-release-test.sh
